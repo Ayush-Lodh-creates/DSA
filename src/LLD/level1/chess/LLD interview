@@ -1,0 +1,448 @@
+Suppose you are an interviewer at Faang, you asked me LLD for chess game, should we start with a mock inerview?
+
+That’s a great idea—this is exactly how FAANG LLD rounds are done. Let’s simulate it properly so you get real interview pressure + guidance.
+
+---
+
+## 🎯 Mock Interview Setup
+
+I’ll act as the interviewer.
+You act as the candidate.
+
+**Rules:**
+
+* Think out loud (VERY important in LLD rounds)
+* Don’t jump to coding immediately
+* Start with requirements → design → classes → interactions
+* I’ll interrupt like a real interviewer if needed
+
+---
+
+## 🧑‍💼 Interview Begins
+
+**Interviewer (me):**
+
+Let’s design a **Chess Game system**.
+
+### Problem Statement
+
+Design a system that allows two players to play a game of chess.
+
+---
+
+## ❓ Your First Task
+
+Start by answering:
+
+👉 **1. What clarifying questions would you ask?**
+
+(Don’t skip this—this is where most candidates lose points)
+
+Think about:
+
+* Scope (UI? backend only?)
+* Multiplayer? online/offline?
+* Rules enforcement?
+* Time control?
+* Persistence?
+
+---
+
+## ⛔ Important
+
+Don’t jump to classes yet.
+I want to see your **requirement gathering first**.
+
+---
+
+Reply with your clarifying questions, and I’ll continue the interview like a real FAANG interviewer 👍
+
+Sure,
+Before we dive deeper into the design there are few things I would like to clarify / discuss with you.
+1) I want to know what is the scope of this application, is it a mobile app or a web app or a terminal based solution?
+2) Is this a multiplayer game or an offline game where 2 people play turn by turn?
+3) I want to also discuss about the rules in the game
+a) Primary requisite should be that the players play turn by turn and none plays more than once.
+b) Players' pieces should not go out of board at any moment of the game
+c) Should we allow moves undo if both parties agree or not at all.
+d) What if a person wants to ask for a draw or wants to surrender should we have functionality for all these
+e) Should we allow en-passant? Many people dont recognise this as a valid move
+f) Will there me time limit and if one player runs out of time the opponent automatically wins?
+g) Do we need other requirements like reporting against cheaters?
+h) Before this do we also need to add a chat interface for both players playing?
+
+Nice—this is a **strong start**. You’re thinking in the right direction and covering product + rule aspects 👍
+Now I’ll respond like a FAANG interviewer would—tightening scope and nudging you forward.
+
+---
+
+## 🧑‍💼 Interviewer Feedback
+
+Good questions. You covered:
+
+* Scope (platform) ✅
+* Multiplayer vs offline ✅
+* Rules & edge cases ✅
+* Extra features (chat, reporting) ✅
+
+But in interviews, we **time-box scope quickly**. Otherwise you’ll over-design.
+
+---
+
+## 📌 Clarified Requirements (from interviewer)
+
+Let’s define a **focused scope**:
+
+### 🎯 Core Scope (what we care about)
+
+* Backend system (no UI needed)
+* Two-player game (can be online or local — treat both same)
+* Enforce **all standard chess rules**
+
+  * Valid moves
+  * Check / Checkmate
+  * Castling, En passant, Pawn promotion
+* Turn-based gameplay
+* Game ends on:
+
+  * Checkmate
+  * Stalemate
+  * Resignation
+  * Draw (basic support)
+
+---
+
+### ❌ Out of Scope (for now)
+
+* Chat system
+* Anti-cheat / reporting
+* Fancy matchmaking
+* Time controls (we can add later if time permits)
+
+---
+
+## 🧠 What I Expect Next
+
+Now move to:
+
+👉 **2. High-level design**
+
+Specifically:
+
+* What are the **core entities / objects** in the system?
+* How do they interact?
+
+You can start with something like:
+
+* Game
+* Board
+* Player
+* Piece (and subclasses)
+
+---
+
+## ⚠️ Interview Hint (Important)
+
+Don’t just list classes.
+Explain:
+
+* Responsibility of each class
+* Relationships between them
+
+---
+
+## 👉 Your Turn
+
+Design the **core classes and relationships** for this chess system.
+
+(Think like: “Game has Board”, “Board has Pieces”, etc.)
+
+I’ll challenge your design next like a real interviewer 🚀
+
+
+Okay now I will start to define the High level aspect of the design
+At first we can have Main class lets call it GameEngine it will be responsible for driving the entire scope of the game. It will be calling BoardService and MoveValidatorService
+BoardService is responsible for tracking the board which is a 8*8 grid of pieces as any cell can contain a piece. Any operation like changing the position of a piece will be first validated via MoveValidatorService and then the corresponding piece can be placed on the relavant cell. Any move like attcking an opponent piece or giving a check happens in BoardService. if we are giving a check then it implies that only pieces that can protect the king can be moved or the king can move to a safer square. If at any position a player has no valid moves but the king is safe then the game ends in a draw and its called stalemate. If the king has no valid moves and is under check then the game ends with a victory for the player who gives the check.
+Now lets discuss the MoveValidatorService is details
+1) Pawn - we can have a variable in Piece (Will come later on piece) hasMoved this will tell us if the particular piece has moved or not. If moved then the pawn can only move 1 box forward for WHITE it will be bottom to up for BLACK it will be top to bottom. If any of our pawn is on 5th row and an enemy pawn directly comes next to our pawn in the same rank we can move in a diagonal direction to capture it enpassant and the pawn can only attack in one diagonal to the right or left like i+1 j+1 or i+1 or j-1
+2) Lets quickly wrap other pieces like Knight which is only allowed to move in an L shape kinda like i+2, j+1 or i+2, j-1 or i+1, j+2 or i-1, j+2 and similarly for all 8 directions in an L shape
+3) Bishop can move in diagonally like i+1 j+1 or i+2, j+2 or i-1, j-1
+4) Rook can move in horizontal direction i+1, i+2, i+3 or j+1, j+2, j+3
+5) Queen can move in all 8 direction which is a combination from Bishop and Rook.
+6) King can only move in 8 direction but only 1 square around it. If King has not moved and no other piece is in the path between a rook and a king we can castle the king where king moves in more than 1 cell at a time and rook is placed right next to the king in appropriate direction.
+
+Now there are few rules.
+A player has to play a move
+If a piece is blocked by another piece of same color it restricts its movement but can capture piece from another color.
+A peice cannot attack another piece of same color
+
+Now a piece can be an abstract class
+all the peices Pawn, King, Queen, Bishop, Rook, Knight will extend the piece
+The internal instance variables of a piece can be color, pieceType and hasMoved
+
+Now a move can be another entity which determines the movement of a piece on the board from one cell to another. This move object will be validated by MoveValidatorService and only if its a valid move can we move the piece or pieces(Castling) in the right direction.
+
+Holistic view
+Entities
+1) Pieces -> Pawn, Knight, ...
+2) Board
+3) Player (Black or White)
+4) Move
+
+Services
+1) BoardService
+2) MoveValidatorService
+
+Enums
+1) Color
+2) PieceType
+3) GameState
+
+This is a **solid LLD answer**—you’re already above average for FAANG rounds. You structured things well and showed rule understanding 👍
+
+Now I’ll do what a real interviewer would:
+👉 **push you deeper + point out gaps**
+
+---
+
+# 🧑‍💼 Interviewer Feedback
+
+## ✅ What you did really well
+
+* Clear separation:
+
+  * Entities vs Services ✅
+* Covered **all chess rules** (en passant, castling, etc.) ✅
+* Introduced `Move` abstraction ✅
+* Used enums properly ✅
+* Thought about constraints (blocking, same color rules) ✅
+
+This is already a **hire-level foundation**, but FAANG expects **cleaner object-oriented modeling + extensibility**.
+
+---
+
+# ⚠️ Key Improvements (Important)
+
+## 1️⃣ Problem: Too Much Logic in Services
+
+Right now:
+
+* `MoveValidatorService` is doing heavy lifting
+* `BoardService` is also doing game logic
+
+👉 This is a **red flag in LLD**
+
+In good OOP:
+
+> Behavior should live close to the object that owns it
+
+---
+
+## ✅ Better Approach
+
+Instead of:
+
+```
+MoveValidatorService.validate(move)
+```
+
+👉 Push logic into **Piece classes**
+
+---
+
+### 💡 Refactor Idea
+
+```java
+abstract class Piece {
+    Color color;
+    boolean hasMoved;
+
+    abstract List<Move> getValidMoves(Board board, Position from);
+}
+```
+
+Then:
+
+```java
+class Bishop extends Piece {
+    List<Move> getValidMoves(Board board, Position from) {
+        // diagonal logic here
+    }
+}
+```
+
+---
+
+### 🎯 Why this is better?
+
+* Open/Closed Principle ✅
+* Easy to extend (new piece types) ✅
+* Cleaner than giant validator class ✅
+
+---
+
+## 2️⃣ Missing: Position / Cell Abstraction
+
+Right now you're using `(i, j)` mentally.
+
+👉 Interviewers expect:
+
+```java
+class Position {
+    int row;
+    int col;
+}
+```
+
+or
+
+```java
+class Cell {
+    Position position;
+    Piece piece;
+}
+```
+
+---
+
+## 3️⃣ Missing: Game Class Responsibilities
+
+You mentioned `GameEngine`, but didn’t define clearly.
+
+👉 I expect:
+
+```java
+class Game {
+    Board board;
+    Player white;
+    Player black;
+    Player currentTurn;
+    GameState state;
+
+    void makeMove(Move move);
+    void switchTurn();
+}
+```
+
+---
+
+## 4️⃣ Important: Move Validation Flow
+
+Right now it's a bit vague.
+
+👉 Clean flow should be:
+
+```
+Game.makeMove(move)
+    → check turn
+    → piece.getValidMoves()
+    → simulate move
+    → check if king is in check
+    → commit move
+```
+
+---
+
+## 5️⃣ Missing: Check Detection (VERY IMPORTANT)
+
+You mentioned it conceptually, but not design-wise.
+
+👉 Interviewer expects:
+
+```java
+boolean isKingInCheck(Color color)
+```
+
+👉 This is critical because:
+
+> A move is invalid if it leaves your king in check
+
+---
+
+## 6️⃣ Special Moves Design (Edge Case Handling)
+
+You mentioned them, but design can improve:
+
+### Castling
+
+* Move involves **2 pieces**
+* Suggest:
+
+```java
+class Move {
+    Position from;
+    Position to;
+    MoveType type; // NORMAL, CASTLING, EN_PASSANT, PROMOTION
+}
+```
+
+---
+
+### Pawn Promotion
+
+👉 Needs extensibility:
+
+```java
+class Move {
+    Piece promotionPiece; // optional
+}
+```
+
+---
+
+## 7️⃣ Board Representation (Important discussion)
+
+You said:
+
+> 8x8 grid of pieces
+
+👉 Better:
+
+```java
+class Board {
+    Cell[][] grid;
+}
+```
+
+Why?
+
+* Future extensibility (highlight, metadata, etc.)
+
+---
+
+# 🧠 Interviewer Push (Next Round)
+
+Now let’s go deeper.
+
+---
+
+## ❓ Follow-up Question
+
+👉 **How would you implement:**
+
+### 🔥 "Check detection"
+
+Specifically:
+
+* How do you determine if a king is in check?
+* What is the algorithm?
+
+---
+
+⚠️ This is where many candidates struggle.
+
+---
+
+## Bonus (if you finish fast)
+
+* How do you ensure a move doesn’t leave your king in check?
+* What is the time complexity?
+
+---
+
+## 👉 Your Turn
+
+Explain:
+👉 **How you would implement check detection in your design**
+
+Think out loud—I’ll interrupt if needed like a real interviewer 😄
