@@ -12,7 +12,7 @@ class WaiterThread extends Thread {
         synchronized (lock) {
             try {
                 System.out.println("Waiter : Waiting for food to be ready... " + Thread.currentThread().getId());
-                lock.wait();
+                lock.wait(5000);  // Wait for 5 seconds max
                 System.out.println("Waiter " + Thread.currentThread().getId() + " is ready to serve the customer.");
                 System.out.println("Waiter : Food is ready! Serving the customer.");
             } catch (InterruptedException e) {
@@ -59,6 +59,6 @@ public class RestaurantSimulation {
         waiter3.start();
         chef.start();
         chef3.start();
-        chef2.start();
+//        chef2.start();
     }
 }

@@ -7,7 +7,7 @@ class WorkerThread implements Runnable {
 
     private final int taskId;
 
-    public WorkerThread(int taskId) {
+    WorkerThread(int taskId) {
         this.taskId = taskId;
     }
 
