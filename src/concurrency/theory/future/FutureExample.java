@@ -1,4 +1,4 @@
-package concurrency.future;
+package concurrency.theory.future;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

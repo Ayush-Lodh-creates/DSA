@@ -1,4 +1,4 @@
-package concurrency.chef_and_waiter;
+package concurrency.theory.chef_and_waiter;
 
 class WaiterThreadEnhanced extends Thread {
     private final Object lock;

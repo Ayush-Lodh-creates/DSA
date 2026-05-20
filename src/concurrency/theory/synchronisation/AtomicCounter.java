@@ -1,4 +1,4 @@
-package concurrency.synchronisation;
+package concurrency.theory.synchronisation;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

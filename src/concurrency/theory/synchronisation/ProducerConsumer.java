@@ -1,4 +1,4 @@
-package concurrency.synchronisation;
+package concurrency.theory.synchronisation;
 
 import java.util.LinkedList;
 import java.util.Queue;

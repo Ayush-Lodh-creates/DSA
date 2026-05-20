@@ -1,6 +1,6 @@
-package concurrency.thread_creation;
+package concurrency.theory.thread_creation;
 
-class MyRunnableThread implements Runnable {
+class MyThread extends Thread {
 
     @Override
     public void run() {
@@ -15,11 +15,11 @@ class MyRunnableThread implements Runnable {
     }
 }
 
-public class RunnableExample {
+public class ThreadExample {
     public static void main(String[] args) {
-        MyRunnableThread runnableThread = new MyRunnableThread();
-        Thread thread1 = new Thread(runnableThread);
-        Thread thread2 = new Thread(runnableThread);
+        MyThread thread1 = new MyThread();
+        MyThread thread2 = new MyThread();
+
         thread1.start();
         thread2.start();
     }

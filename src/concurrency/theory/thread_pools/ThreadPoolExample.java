@@ -1,4 +1,4 @@
-package concurrency.thread_pools;
+package concurrency.theory.thread_pools;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

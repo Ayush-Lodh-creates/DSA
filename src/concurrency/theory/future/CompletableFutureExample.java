@@ -1,6 +1,5 @@
-package concurrency.future;
+package concurrency.theory.future;
 
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;

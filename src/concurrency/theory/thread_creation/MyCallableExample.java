@@ -1,4 +1,4 @@
-package concurrency.thread_creation;
+package concurrency.theory.thread_creation;
 
 import java.util.concurrent.*;
 

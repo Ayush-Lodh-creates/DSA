@@ -1,4 +1,4 @@
-package concurrency.locks;
+package concurrency.theory.locks;
 
 import java.util.Collections;
 import java.util.HashMap;
