@@ -1,0 +1,36 @@
+package LLD.concurrency.booking_system.controllers;
+
+import LLD.concurrency.booking_system.entity.Seat;
+import LLD.concurrency.booking_system.entity.Show;
+import LLD.concurrency.booking_system.entity.User;
+import LLD.concurrency.booking_system.service.BookingService;
+import LLD.concurrency.booking_system.service.ShowService;
+import LLD.concurrency.booking_system.service.TheatreService;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BookingController {
+
+    private final ShowService showService;
+    private final BookingService bookingService;
+    private final TheatreService theatreService;
+
+    public BookingController(final ShowService showService, final BookingService bookingService,
+                             final TheatreService theatreService){
+        this.showService = showService;
+        this.bookingService = bookingService;
+        this.theatreService = theatreService;
+    }
+
+    public String createBooking(final User user, final int showId, final List<Integer> seatsIds) throws Exception{
+        final Show show = showService.getShow(showId); // Retrieve the show object
+        // Convert seat IDs to Seat objects
+        final List<Seat> seats = new ArrayList<>();
+        for (Integer seatsId : seatsIds) {
+            Seat seat = theatreService.getSeat(seatsId);
+            seats.add(seat);
+        }
+        return bookingService.createBooking(user, show, seats).getId(); // Create and return booking ID
+    }
+}
