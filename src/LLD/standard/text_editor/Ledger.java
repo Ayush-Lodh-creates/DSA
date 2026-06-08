@@ -46,7 +46,7 @@ public class Ledger {
         }
         pointer.next = nextPointer;
         nextPointer.prev = pointer;
-        return sb.toString();
+        return sb.reverse().toString();
     }
 
     public void showText() {
