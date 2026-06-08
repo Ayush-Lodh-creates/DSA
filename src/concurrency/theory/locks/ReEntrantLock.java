@@ -8,7 +8,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class ReEntrantLock {
 
     private int counter = 0;
-    private final ReentrantLock lock = new ReentrantLock();
+    public final ReentrantLock lock = new ReentrantLock();
 
     public void increment() {
         lock.lock();
