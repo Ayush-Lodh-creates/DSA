@@ -1,7 +1,5 @@
 package graphs;
 
-import java.util.Map;
-
 public class FloydWarshallAlgorithm {
 
     public static void main(String[] args) {
