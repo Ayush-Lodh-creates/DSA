@@ -9,11 +9,15 @@ import LLD.standard.movie_booking.enums.BookingStatus;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BookingService {
 
     List<Booking> bookings = new CopyOnWriteArrayList<>();
+
+    //private ConcurrentHashMap<String, ReentrantLock> lockMap = new ConcurrentHashMap<>();
 
     public Booking bookSeat(User user, Show show, Seat seat) {
         show.getLock().lock();
@@ -32,6 +36,22 @@ public class BookingService {
             show.getLock().unlock();
         }
     }
+
+//    public Booking bookSeat(User user, Show show, Seat seat) {
+//        String lockKey = show.getShowId() + "_" + seat.getSeatId();
+//        ReentrantLock lock = lockMap.computeIfAbsent(lockKey, k -> new ReentrantLock());
+//
+//        lock.lock();
+//        try {
+//            if (show.isSeatBooked(seat.getSeatId())) {
+//                throw new IllegalArgumentException("Seat already booked for this show");
+//            }
+//            show.bookSeat(seat.getSeatId());
+//            // create and return booking...
+//        } finally {
+//            lock.unlock();
+//        }
+//    }
 
     public void cancelBooking(Booking booking) {
         Show show = booking.getShow();
