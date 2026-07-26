@@ -28,16 +28,7 @@ public class TheatreService {
         theatreScreensMap.get(theatre).add(screen);
     }
 
-    public Map<Theatre,Screen> showAllTheatres(String movieName) {
-        Map<Theatre, Screen> theatreScreenMap = new HashMap<>();
-        for(Map.Entry<Theatre, List<Screen>> entry : theatreScreensMap.entrySet()) {
-            for(Screen screen : entry.getValue()) {
-                if(screen.getMovie().getName().equalsIgnoreCase(movieName)) {
-                    theatreScreenMap.put(entry.getKey(), screen);
-                    break; // Break to avoid adding the same theatre multiple times
-                }
-            }
-        }
-        return theatreScreenMap;
+    public List<Screen> getScreensForTheatre(Theatre theatre) {
+        return theatreScreensMap.getOrDefault(theatre, new ArrayList<>());
     }
 }

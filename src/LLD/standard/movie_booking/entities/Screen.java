@@ -4,16 +4,10 @@ public class Screen {
 
     private String screenId;
     private int screenNumber;
-    private Movie movie;
 
-    public Screen(String screenId, int screenNumber, Movie movie) {
+    public Screen(String screenId, int screenNumber) {
         this.screenId = screenId;
         this.screenNumber = screenNumber;
-        this.movie = movie;
-    }
-
-    public Movie getMovie() {
-        return movie;
     }
 
     public String getScreenId() {

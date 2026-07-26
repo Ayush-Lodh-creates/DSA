@@ -28,10 +28,7 @@ public class ScreenService {
         screenSeatMap.get(screen).add(seat);
     }
 
-    public void showSeatStatus(Screen screen) {
-        List<Seat> seats = screenSeatMap.getOrDefault(screen, new ArrayList<>());
-        for(Seat seat : seats) {
-            System.out.println("Seat ID: " + seat.getSeatId() + ", Seat number: " + seat.getSeatNumber() + ", Booked: " + seat.getBooked());
-        }
+    public List<Seat> getSeatsForScreen(Screen screen) {
+        return screenSeatMap.getOrDefault(screen, new ArrayList<>());
     }
 }

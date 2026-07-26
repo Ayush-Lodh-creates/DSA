@@ -12,8 +12,8 @@ public class ConfirmState implements BookingState {
 
     @Override
     public void cancel(Booking booking) {
-        System.out.println("Cancelling the booking.");
-        booking.cancel();
+        System.out.println("Cancelling confirmed booking.");
+        booking.setBookingState(new CancelState());
     }
 
     @Override

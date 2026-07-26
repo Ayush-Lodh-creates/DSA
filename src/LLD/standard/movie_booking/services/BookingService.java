@@ -2,6 +2,7 @@ package LLD.standard.movie_booking.services;
 
 import LLD.standard.movie_booking.entities.Booking;
 import LLD.standard.movie_booking.entities.Seat;
+import LLD.standard.movie_booking.entities.Show;
 import LLD.standard.movie_booking.entities.User;
 import LLD.standard.movie_booking.enums.BookingStatus;
 
@@ -14,21 +15,32 @@ public class BookingService {
 
     List<Booking> bookings = new CopyOnWriteArrayList<>();
 
-    public Booking bookSeat(User userId, Seat seat) {
-        seat.lock.lock();
+    public Booking bookSeat(User user, Show show, Seat seat) {
+        show.getLock().lock();
         try {
-            if(seat.getBooked()) {
-                throw new IllegalArgumentException("Seat is already booked");
+            if(show.isSeatBooked(seat.getSeatId())) {
+                throw new IllegalArgumentException("Seat is already booked for this show");
             }
-            seat.setBooked(true);
+            show.bookSeat(seat.getSeatId());
             Booking booking = new Booking(
                     UUID.randomUUID().toString(),
-                    userId, seat
+                    user, show, seat
             );
             bookings.add(booking);
             return booking;
         } finally {
-            seat.lock.unlock();
+            show.getLock().unlock();
+        }
+    }
+
+    public void cancelBooking(Booking booking) {
+        Show show = booking.getShow();
+        show.getLock().lock();
+        try {
+            booking.cancel();
+            show.releaseSeat(booking.getSeat().getSeatId());
+        } finally {
+            show.getLock().unlock();
         }
     }
 
