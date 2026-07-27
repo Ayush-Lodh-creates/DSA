@@ -3,6 +3,8 @@ package LLD.level2.leaderboard;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 class User {
     int id;
@@ -98,42 +100,80 @@ class DaysLeaderBoard {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     private final TreeMap<LocalDate, Leaderboard> dailyLeaderboards;
+    private final Map<String, ReentrantReadWriteLock> locksMap;
 
     public DaysLeaderBoard() {
         dailyLeaderboards = new TreeMap<>();
+        locksMap = new ConcurrentHashMap<>();
     }
 
     public void updateScoreForDay(int update, User user, String day) {
-        LocalDate localDate = LocalDate.parse(day, FORMATTER);
-        dailyLeaderboards.computeIfAbsent(localDate, k -> new Leaderboard()).updateScore(update, user);
+        if(!locksMap.containsKey(day)) {
+            locksMap.put(day, new ReentrantReadWriteLock());
+        }
+        ReentrantReadWriteLock resourceLock = locksMap.get(day);
+        resourceLock.writeLock().lock();
+        try {
+            LocalDate localDate = LocalDate.parse(day, FORMATTER);
+            dailyLeaderboards.computeIfAbsent(localDate, k -> new Leaderboard()).updateScore(update, user);
+        } finally {
+            resourceLock.writeLock().unlock();
+        }
     }
 
     public List<User> getTopKUsersForDay(String day, int k) {
-        LocalDate localDate = LocalDate.parse(day, FORMATTER);
-        Leaderboard board = dailyLeaderboards.get(localDate);
-        if (board == null) return new ArrayList<>();
-        return board.getTopKUsersByScore(k);
+        if(!locksMap.containsKey(day)) {
+            locksMap.put(day, new ReentrantReadWriteLock());
+        }
+        ReentrantReadWriteLock resourceLock = locksMap.get(day);
+        resourceLock.readLock().lock();
+        try {
+            LocalDate localDate = LocalDate.parse(day, FORMATTER);
+            Leaderboard board = dailyLeaderboards.get(localDate);
+            if (board == null) return new ArrayList<>();
+            return board.getTopKUsersByScore(k);
+        } finally {
+            resourceLock.readLock().unlock();
+        }
     }
 
     public int getRankForUserOnDay(String day, User user) {
-        LocalDate localDate = LocalDate.parse(day, FORMATTER);
-        Leaderboard board = dailyLeaderboards.get(localDate);
-        if (board == null) return -1;
-        return board.getRankForUser(user);
+        if(!locksMap.containsKey(day)) {
+            locksMap.put(day, new ReentrantReadWriteLock());
+        }
+        ReentrantReadWriteLock resourceLock = locksMap.get(day);
+        resourceLock.readLock().lock();
+        try {
+            LocalDate localDate = LocalDate.parse(day, FORMATTER);
+            Leaderboard board = dailyLeaderboards.get(localDate);
+            if (board == null) return -1;
+            return board.getRankForUser(user);
+        } finally {
+            resourceLock.readLock().unlock();
+        }
     }
 
     public List<User> getTopKScoresForWeek(String endDay, int k) {
-        LocalDate endDate = LocalDate.parse(endDay, FORMATTER);
-        LocalDate startDate = endDate.minusDays(7);
-        Map<LocalDate, Leaderboard> range = dailyLeaderboards.subMap(startDate, true, endDate, true);
-
-        Leaderboard aggregated = new Leaderboard();
-        for (Leaderboard board : range.values()) {
-            for (Map.Entry<User, Integer> entry : board.getUserScores().entrySet()) {
-                aggregated.updateScore(entry.getValue(), entry.getKey());
-            }
+        if(!locksMap.containsKey(endDay)) {
+            locksMap.put(endDay, new ReentrantReadWriteLock());
         }
-        return aggregated.getTopKUsersByScore(k);
+        ReentrantReadWriteLock resourceLock = locksMap.get(endDay);
+        resourceLock.readLock().lock();
+        try {
+            LocalDate endDate = LocalDate.parse(endDay, FORMATTER);
+            LocalDate startDate = endDate.minusDays(7);
+            Map<LocalDate, Leaderboard> range = dailyLeaderboards.subMap(startDate, true, endDate, true);
+
+            Leaderboard aggregated = new Leaderboard();
+            for (Leaderboard board : range.values()) {
+                for (Map.Entry<User, Integer> entry : board.getUserScores().entrySet()) {
+                    aggregated.updateScore(entry.getValue(), entry.getKey());
+                }
+            }
+            return aggregated.getTopKUsersByScore(k);
+        } finally {
+            resourceLock.readLock().unlock();
+        }
     }
 }
 
