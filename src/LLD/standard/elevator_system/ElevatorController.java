@@ -1,26 +1,32 @@
 package LLD.standard.elevator_system;
 
 import LLD.standard.elevator_system.entities.Elevator;
+import LLD.standard.elevator_system.entities.Request;
 import LLD.standard.elevator_system.enums.Direction;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-class ElevatorController {
+public class ElevatorController {
     private static ElevatorController instance;
-    List<Elevator> elevators = new ArrayList<>();
+    private final List<Elevator> elevators = new ArrayList<>();
 
     private ElevatorController() {}
 
-    static ElevatorController getInstance() {
+    public static synchronized ElevatorController getInstance() {
         if (instance == null) instance = new ElevatorController();
         return instance;
     }
 
-    void addElevator(Elevator e) { elevators.add(e); }
+    public synchronized void addElevator(Elevator e) { elevators.add(e); }
 
-    Elevator assignElevator(int floor, Direction dir) {
+    public synchronized void handleRequest(int floor, Direction dir) {
+        Elevator e = assignElevator(floor, dir);
+        e.addRequest(new Request(floor, dir));
+    }
+
+    private Elevator assignElevator(int floor, Direction dir) {
         return elevators.stream()
                 .min(Comparator.comparingInt(e -> {
                     int dist = Math.abs(e.currentFloor - floor);
@@ -33,7 +39,7 @@ class ElevatorController {
                 .orElseThrow();
     }
 
-    void stepAll() {
+    public synchronized void stepAll() {
         for (Elevator e : elevators) {
             e.step();
         }
