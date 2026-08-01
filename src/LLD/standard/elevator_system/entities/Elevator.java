@@ -15,10 +15,10 @@ public class Elevator {
 
     final int id;
     public int currentFloor;
-    Direction direction = Direction.IDLE;
+    public Direction direction = Direction.IDLE;
     ElevatorState state = new IdleElevatorState();
     TreeSet<Integer> upStops = new TreeSet<>();
-    TreeSet<Integer> downSteps = new TreeSet<>();
+    TreeSet<Integer> downStops = new TreeSet<>();
     int targetFloor = -1;
     SchedulingStrategy schedulingStrategy;
     List<ElevatorObserver> observers = new ArrayList<>();
@@ -47,18 +47,18 @@ public class Elevator {
             if(request.floor > currentFloor) {
                 upStops.add(request.floor);
             } else {
-                downSteps.add(request.floor);
+                downStops.add(request.floor);
             }
         } else {
             if(this.direction.equals(request.direction)) {
                 if(Direction.UP.equals(this.direction)) {
                     upStops.add(request.floor);
                 } else {
-                    downSteps.add(request.floor);
+                    downStops.add(request.floor);
                 }
             } else {
                 if(Direction.UP.equals(this.direction)) {
-                    downSteps.add(request.floor);
+                    downStops.add(request.floor);
                 } else {
                     upStops.add(request.floor);
                 }
@@ -70,23 +70,33 @@ public class Elevator {
     }
 
     public boolean hasPendingRequests() {
-        return !upStops.isEmpty() || !downSteps.isEmpty();
+        return !upStops.isEmpty() || !downStops.isEmpty();
     }
 
     public void pickNextStopAndMove() {
-        targetFloor = schedulingStrategy.getNextStop(currentFloor, direction, upStops, downSteps);
-        direction = targetFloor > currentFloor ? Direction.UP : targetFloor < currentFloor ? Direction.DOWN : Direction.IDLE;
-        state = Direction.IDLE.equals(direction) ? new IdleElevatorState() : new MovingElevatorState();
+        if (!hasPendingRequests()) {
+            direction = Direction.IDLE;
+            state = new IdleElevatorState();
+            return;
+        }
+        targetFloor = schedulingStrategy.getNextStop(currentFloor, direction, upStops, downStops);
+        direction = targetFloor > currentFloor ? Direction.UP : Direction.DOWN;
+        state = new MovingElevatorState();
     }
 
     public void moveOneStep() {
+        if (Direction.IDLE.equals(direction)) return;
         currentFloor += (Direction.UP.equals(direction) ? 1 : -1);
         notifyObservers();
-        if(currentFloor == targetFloor) {
+        if (currentFloor == targetFloor) {
             upStops.remove(currentFloor);
-            downSteps.remove(currentFloor);
-            state = new IdleElevatorState();
+            downStops.remove(currentFloor);
+            pickNextStopAndMove();
         }
+    }
+
+    public void step() {
+        state.step(this);
     }
 
     public void setState(ElevatorState elevatorState) {

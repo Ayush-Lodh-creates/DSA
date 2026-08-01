@@ -22,6 +22,7 @@ public class LookStrategy implements SchedulingStrategy {
         // idle - pick nearest
         Integer up = upStops.ceiling(currentFloor);
         Integer down = downStops.floor(currentFloor);
+        if (up == null && down == null) return currentFloor;
         if (up == null) return down;
         if (down == null) return up;
         return (up - currentFloor <= currentFloor - down) ? up : down;

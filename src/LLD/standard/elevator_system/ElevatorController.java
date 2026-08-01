@@ -20,10 +20,22 @@ class ElevatorController {
 
     void addElevator(Elevator e) { elevators.add(e); }
 
-    // simplest dispatch: pick nearest idle-ish elevator
     Elevator assignElevator(int floor, Direction dir) {
         return elevators.stream()
-                .min(Comparator.comparingInt(e -> Math.abs(e.currentFloor - floor)))
+                .min(Comparator.comparingInt(e -> {
+                    int dist = Math.abs(e.currentFloor - floor);
+                    if (Direction.IDLE.equals(e.direction)) return dist;
+                    boolean sameDir = e.direction == dir;
+                    boolean notPassed = (dir == Direction.UP && e.currentFloor <= floor)
+                            || (dir == Direction.DOWN && e.currentFloor >= floor);
+                    return (sameDir && notPassed) ? dist : dist + 1000;
+                }))
                 .orElseThrow();
+    }
+
+    void stepAll() {
+        for (Elevator e : elevators) {
+            e.step();
+        }
     }
 }
