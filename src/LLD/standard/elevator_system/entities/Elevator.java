@@ -98,8 +98,4 @@ public class Elevator {
     public void step() {
         state.step(this);
     }
-
-    public void setState(ElevatorState elevatorState) {
-        this.state = elevatorState;
-    }
 }
